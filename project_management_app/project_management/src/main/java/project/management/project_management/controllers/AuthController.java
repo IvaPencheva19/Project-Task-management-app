@@ -1,5 +1,6 @@
 package project.management.project_management.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequestDto request) {
+    public ResponseEntity<String> signup(@Valid @RequestBody SignupRequestDto request) {
         authService.signup(request);
         return ResponseEntity.ok("User registered successfully");
     }
