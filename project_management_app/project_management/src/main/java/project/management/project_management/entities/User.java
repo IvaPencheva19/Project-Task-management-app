@@ -31,6 +31,8 @@ public class User {
 
     @OneToMany(mappedBy = "assignee")
     private Set<Task> assignedTasks = new HashSet<>();
+
+
 }
 
 
