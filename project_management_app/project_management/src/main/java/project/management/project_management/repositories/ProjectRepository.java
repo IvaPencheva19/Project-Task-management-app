@@ -5,7 +5,10 @@ import org.springframework.stereotype.Repository;
 import project.management.project_management.entities.Project;
 import project.management.project_management.entities.User;
 
+import java.util.List;
+
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+    List<Project> findByWorkspaceId(Long workspaceId);
 }
 
