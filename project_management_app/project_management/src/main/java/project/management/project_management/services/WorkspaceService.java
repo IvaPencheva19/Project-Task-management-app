@@ -2,20 +2,20 @@ package project.management.project_management.services;
 
 
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import project.management.project_management.dtos.workspace.AddMemberRequestDto;
 import project.management.project_management.dtos.workspace.WorkspaceDto;
 import project.management.project_management.dtos.workspace.WorkspaceMemberDto;
 import project.management.project_management.dtos.workspace.WorkspaceRequestDto;
-import project.management.project_management.entities.User;
-import project.management.project_management.entities.Workspace;
-import project.management.project_management.entities.WorkspaceMember;
-import project.management.project_management.entities.WorkspaceMemberId;
+import project.management.project_management.entities.*;
+import project.management.project_management.repositories.ProjectRepository;
 import project.management.project_management.repositories.UserRepository;
 import project.management.project_management.repositories.WorkspaceMemberRepository;
 import project.management.project_management.repositories.WorkspaceRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,17 +27,19 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final UserRepository userRepository;
-
+    private final ProjectRepository projectRepository;
 
     public WorkspaceDto createWorkspace(WorkspaceRequestDto request) {
         User currentUser = userService.getCurrentUser();
 
         Workspace workspace = new Workspace();
         workspace.setName(request.getName());
+        workspace.setOwner(currentUser);
+
         workspace = workspaceRepository.save(workspace);
 
+        // Also add the owner as a member
         WorkspaceMember member = new WorkspaceMember();
-        member.setId(new WorkspaceMemberId(workspace.getId(), currentUser.getId()));
         member.setWorkspace(workspace);
         member.setUser(currentUser);
         member.setRole(WorkspaceMember.Role.OWNER);
@@ -170,6 +172,30 @@ public class WorkspaceService {
         dto.setName(workspace.getName());
         return dto;
     }
+
+    @Transactional
+    public void deleteWorkspace(Long workspaceId) {
+        User currentUser = userService.getCurrentUser();
+
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new RuntimeException("Workspace not found"));
+
+        WorkspaceMember member = workspaceMemberRepository
+                .findByWorkspaceIdAndUserId(workspaceId, currentUser.getId());
+        if (member == null) {
+            throw new RuntimeException("You are not a member of this workspace");
+        }
+
+        if (member.getRole() != WorkspaceMember.Role.OWNER) {
+            throw new RuntimeException("Only the workspace owner can delete it");
+        }
+        projectRepository.deleteAllByWorkspaceId(workspaceId);
+        workspaceMemberRepository.deleteAllByWorkspaceId(workspaceId);
+
+
+        workspaceRepository.delete(workspace);
+    }
+
 
 
 }

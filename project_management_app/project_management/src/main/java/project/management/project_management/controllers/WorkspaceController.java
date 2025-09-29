@@ -58,4 +58,10 @@ public class WorkspaceController {
         workspaceService.removeMember(workspaceId, userId);
         return ResponseEntity.ok("Member removed successfully");
     }
+    @DeleteMapping("/{workspaceId}")
+    public ResponseEntity<Void> deleteWorkspace(@PathVariable Long workspaceId) {
+        workspaceService.deleteWorkspace(workspaceId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

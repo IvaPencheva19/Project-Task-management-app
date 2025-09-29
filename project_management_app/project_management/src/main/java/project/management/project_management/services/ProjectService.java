@@ -98,6 +98,21 @@ public class ProjectService {
         return dto;
     }
 
+    public void deleteProject(Long projectId) {
+        User currentUser = userService.getCurrentUser();
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        WorkspaceMember member = workspaceMemberRepository
+                .findByWorkspaceIdAndUserId(project.getWorkspace().getId(), currentUser.getId());
+        if (member == null) {
+            throw new RuntimeException("You are not a member of this workspace");
+        }
+
+        projectRepository.delete(project);
+    }
+
 
     private ProjectDto toDto(Project project) {
         ProjectDto dto = new ProjectDto();

@@ -24,10 +24,10 @@ public class Workspace {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "workspace")
     private Set<Project> projects = new HashSet<>();
 
-    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "workspace")
     private Set<WorkspaceMember> members = new HashSet<>();
 }
 
