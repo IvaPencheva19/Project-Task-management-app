@@ -42,7 +42,7 @@ public class UserService {
     public Optional<UserDto> updateUser(Long id, User userDetails) { //TODO make check if the user is the same
         return userRepository.findById(id).map(user -> {
             user.setUsername(userDetails.getUsername());
-            user.setEmail(userDetails.getEmail());
+//            user.setEmail(userDetails.getEmail());
             if (userDetails.getPasswordHash() != null && !userDetails.getPasswordHash().isEmpty()) {
                 user.setPasswordHash(userDetails.getPasswordHash());
             }
